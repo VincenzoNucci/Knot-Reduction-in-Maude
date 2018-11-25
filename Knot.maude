@@ -5,9 +5,7 @@ fmod GAUSS-CODE is
 
     subsorts Int < NeGauss < Gauss .
 
-
     op [] : -> Gauss [ctor] .
-    
 
     op _;_ : Int Int -> NeGauss [assoc prec 0 ctor] .
     op _;_ : Int Gauss -> NeGauss [ditto] .
@@ -18,13 +16,12 @@ fmod GAUSS-CODE is
     vars G G' : Gauss . 
     var NeG : NeGauss .
     var I : Int .
+
     eq G ; [] = G .
     eq [] ; G = G .
     eq remove I from G ; I = G .
     eq remove I from I ; G = G .
     eq remove I from G ; (I ; G') = G ; G' .
-
-
 
 endfm
 
