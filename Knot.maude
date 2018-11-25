@@ -1,0 +1,43 @@
+fmod GAUSS-CODE is
+
+    protecting INT .
+    sorts NeGauss Gauss .
+
+    subsorts Int < NeGauss < Gauss .
+
+
+    op [] : -> Gauss [ctor] .
+    
+
+    op _;_ : Int Int -> NeGauss [assoc prec 0 ctor] .
+    op _;_ : Int Gauss -> NeGauss [ditto] .
+    op _;_ : Gauss Gauss -> Gauss [ditto] .  
+
+    op remove_from_ : Int NeGauss -> Gauss .
+
+    vars G G' : Gauss . 
+    var NeG : NeGauss .
+    var I : Int .
+    eq G ; [] = G .
+    eq [] ; G = G .
+    eq remove I from G ; I = G .
+    eq remove I from I ; G = G .
+    eq remove I from G ; (I ; G') = G ; G' .
+
+
+
+endfm
+
+
+--- Work In Progress
+
+fmod KNOT-DEFINITION is
+
+    protecting GAUSS-CODE .
+
+    sort Knot .
+
+    op unknot : -> Knot .
+    op red : Knot -> Knot .
+
+endfm
