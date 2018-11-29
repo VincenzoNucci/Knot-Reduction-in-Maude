@@ -1,27 +1,66 @@
 fmod GAUSS-CODE is
 
-    protecting INT .
-    sorts NeGauss Gauss .
+   protecting INT .
+   sorts NeGauss Gauss .
 
-    subsorts Int < NeGauss < Gauss .
+   subsorts Int < NeGauss < Gauss .
 
-    op [] : -> Gauss [ctor] .
+   op ~ : -> Gauss [ctor] .
 
-    op _;_ : Int Int -> NeGauss [assoc prec 0 ctor] .
-    op _;_ : Int Gauss -> NeGauss [ditto] .
-    op _;_ : Gauss Gauss -> Gauss [ditto] .  
+   op _;_ : Int Int -> NeGauss [assoc id: ~ ctor] .
+   op _;_ : Int Gauss -> NeGauss [ditto] .
+   op _;_ : Gauss Int -> NeGauss [ditto] .
+   op _;_ : Gauss Gauss -> Gauss [ditto] .
 
-    op remove_from_ : Int NeGauss -> Gauss .
+   op _;_ : Int NeGauss -> NeGauss [ditto] .
+   op _;_ : NeGauss Int -> NeGauss [ditto] .
+   op _;_ : NeGauss NeGauss -> NeGauss [ditto] .
 
-    vars G G' : Gauss . 
-    var NeG : NeGauss .
-    var I : Int .
+   op _;_ : NeGauss Gauss -> NeGauss [ditto] .
+   op _;_ : Gauss NeGauss -> NeGauss [ditto] .
 
-    eq G ; [] = G .
-    eq [] ; G = G .
-    eq remove I from G ; I = G .
-    eq remove I from I ; G = G .
-    eq remove I from G ; (I ; G') = G ; G' .
+
+   op remove_from_ : Int NeGauss -> Gauss .
+   op length : Gauss -> Int .
+   op positionOf_in_ : Int Gauss -> Int .
+   op add_in_to_ : Int Int Gauss -> NeGauss .
+   op move_to_in_ : Int Int NeGauss -> NeGauss .
+
+   vars G G' : Gauss .
+   var NeG : NeGauss .
+   vars I K : Int .
+
+   --- REMOVE OPERATION
+   eq remove I from NeG ; I = NeG .
+   eq remove I from I ; NeG = NeG .
+   eq remove I from G ; (I ; G') = G ; G' .
+
+   --- LENGTH OPERATION
+   eq length(~) = 0 .
+   eq length(I) = 1 .
+   eq length(I ; G) = 1 + length(G) .
+
+   --- POSITION OPERATION
+   --- I is found
+   eq positionOf I in I = 0 .
+   eq positionOf I in I ; G = 0 .
+   eq positionOf I in G ; I = length(G) .
+   eq positionOf I in G ; (I ; G') = length(G) .
+   --- I is not found
+   eq positionOf I in ~ = -1 .
+   ceq positionOf I in K = -1 if I =/= K .
+   ceq positionOf I in K ; G = -1 if I =/= K .
+   ceq positionOf I in G ; K = -1 if I =/= K .
+   ceq positionOf I in G ; (K ; G') = -1 if I =/= K .
+
+   --- ADD OPERATOR
+   eq add I in K to ~ = I .
+   ceq add I in K to G = G ; I if K = length(G) .
+   eq add I in 0 to G = I ; G .
+   ceq add I in K to G ; G' = G ; (I ; G') if K = length(G) .
+
+   --- MOVE OPERATION
+   eq move I to K in NeG = ( add I in K to ( remove I from NeG ) ) .
 
 endfm
 
@@ -30,11 +69,45 @@ endfm
 
 fmod KNOT-DEFINITION is
 
-    protecting GAUSS-CODE .
+   protecting GAUSS-CODE .
+   protecting TRUTH-VALUE .
 
-    sort Knot .
+   sort Knot .
 
-    op unknot : -> Knot .
-    op red : Knot -> Knot .
+   vars I K Z : Int .
+   var NeG : NeGauss .
+   var G G' : Gauss .
 
+   op unknot : -> Knot .
+   op red : Knot -> Knot .
+
+   op _negIn_ : Int NeGauss -> Bool .
+   op _adj_in_ : Int Int NeGauss -> Bool .
+   op s_,_ : Int NeGauss -> Int .
+   op p_,_ : Int NeGauss -> Int .
+
+   ceq s(I,NeG) = K if positionOf K in NeG = positionOf I in NeG + 1 .
+   eq s(I,NeG) = Z [owise] .
+
+   ceq p(I,NeG) = K if positionOf K in NeG = positionOf I in NeG - 1 .
+   eq p(I,NeG) = Z [owise] .
+    
+   
+   ceq I adj K in NeG = true if p(I,NeG) = K \/ s(I,NeG) = K \/ p(K,NeG) = I \/ s(K,NeG) = I .
+   eq I adj K in NeG = false [owise] .
+
+   ceq I negIn NeG = true if I adj K in NeG = true /\ I = -K . 
 endfm
+
+mod R-MOVES is
+
+   pr GAUSS-CODE .
+
+   var NeG : NeGauss .
+   vars I K : Int .
+
+  
+
+endm
+
+
