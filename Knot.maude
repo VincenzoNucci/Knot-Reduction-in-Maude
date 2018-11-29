@@ -70,43 +70,55 @@ endfm
 fmod KNOT-DEFINITION is
 
    protecting GAUSS-CODE .
-   protecting TRUTH-VALUE .
 
    sort Knot .
+   sort NegInt .
 
-   vars I K Z : Int .
+   subsort NegInt < Int .
+
+   vars I K : Int .
+   var Z : NegInt .
    var NeG : NeGauss .
    var G G' : Gauss .
 
    op unknot : -> Knot .
    op red : Knot -> Knot .
 
+
    op _negIn_ : Int NeGauss -> Bool .
    op _adj_in_ : Int Int NeGauss -> Bool .
-   op s_,_ : Int NeGauss -> Int .
-   op p_,_ : Int NeGauss -> Int .
+   op s(_,_,_) : Int Int NeGauss -> Int . ---successor means it's after the int im checking
+   op p(_,_,_) : Int Int NeGauss -> Int . ---predecessor means it's before the int im checking
 
-   ceq s(I,NeG) = K if positionOf K in NeG = positionOf I in NeG + 1 .
-   eq s(I,NeG) = Z [owise] .
+   eq - I + I = 0 .
 
-   ceq p(I,NeG) = K if positionOf K in NeG = positionOf I in NeG - 1 .
-   eq p(I,NeG) = Z [owise] .
+   ---ceq s(I,K,NeG) = true if I adj K in NeG = true .
+   ---eq s(I,K,NeG) = -1 [owise] .
+
+   ---ceq p(I,K,NeG) = true if I adj K in NeG = true .
+   ---eq p(I,K,NeG) = -1 [owise] .
     
-   
-   ceq I adj K in NeG = true if p(I,NeG) = K \/ s(I,NeG) = K \/ p(K,NeG) = I \/ s(K,NeG) = I .
-   eq I adj K in NeG = false [owise] .
+   ---ADJACENT OPERATION
+   eq I adj K in (G ; I ; K ; G') = true .
+   eq I adj K in (G ; K ; I ; G') = true .
+   eq I adj K in (I ; G ; G' ; K) = true .
+   eq I adj K in (K ; G ; G' ; I) = true .
+   eq I adj K in NeG = false [owise] .  
 
-   ceq I negIn NeG = true if I adj K in NeG = true /\ I = -K . 
+   ---ceq I negIn NeG = true if I adj K in NeG = true /\ - I + I = 0 . 
 endfm
 
 mod R-MOVES is
 
-   pr GAUSS-CODE .
+   protecting KNOT-DEFINITION .
 
+   vars G G' G'' : Gauss .
    var NeG : NeGauss .
-   vars I K : Int .
+   vars I K J Z : Int .
 
-  
+   crl [move1] : (G ; I ; K ; G') => (G ; G') if I + K = 0 .
+   crl [move2] : (G ; I ; K ; G' ; J ; Z) => (G ; G') if I + J = 0 /\ K + Z = 0 .
+   crl [move3] : (G ; I ; J ; G' ; K ; Z ; G'') => (G ; J ; I ; G' ; Z ; K ; G'') if J + K = 0 .
 
 endm
 
