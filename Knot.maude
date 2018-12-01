@@ -71,7 +71,7 @@ fmod KNOT-DEFINITION is
 
    protecting GAUSS-CODE .
 
-   sort Knot .
+   
    sort NegInt .
 
    subsort NegInt < Int .
@@ -81,22 +81,11 @@ fmod KNOT-DEFINITION is
    var NeG : NeGauss .
    var G G' : Gauss .
 
-   op unknot : -> Knot .
-   op red : Knot -> Knot .
-
 
    op _negIn_ : Int NeGauss -> Bool .
    op _adj_in_ : Int Int NeGauss -> Bool .
-   op s(_,_,_) : Int Int NeGauss -> Int . ---successor means it's after the int im checking
-   op p(_,_,_) : Int Int NeGauss -> Int . ---predecessor means it's before the int im checking
 
    eq - I + I = 0 .
-
-   ---ceq s(I,K,NeG) = true if I adj K in NeG = true .
-   ---eq s(I,K,NeG) = -1 [owise] .
-
-   ---ceq p(I,K,NeG) = true if I adj K in NeG = true .
-   ---eq p(I,K,NeG) = -1 [owise] .
     
    ---ADJACENT OPERATION
    eq I adj K in (G ; I ; K ; G') = true .
@@ -111,12 +100,14 @@ endfm
 mod R-MOVES is
 
    protecting KNOT-DEFINITION .
+   protecting BOOL .
 
    vars G G' G'' : Gauss .
    var NeG : NeGauss .
    vars I K J Z : Int .
 
    crl [move1] : (G ; I ; K ; G') => (G ; G') if I + K = 0 .
+   crl [move1] : (I ; G ; G' ; K) => (G ; G') if I + K = 0 .
    crl [move2] : (G ; I ; K ; G' ; J ; Z) => (G ; G') if I + J = 0 /\ K + Z = 0 .
    crl [move3] : (G ; I ; J ; G' ; K ; Z ; G'') => (G ; J ; I ; G' ; Z ; K ; G'') if J + K = 0 .
 
