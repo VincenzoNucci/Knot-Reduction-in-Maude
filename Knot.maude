@@ -81,11 +81,12 @@ fmod KNOT-DEFINITION is
    var NeG : NeGauss .
    var G G' : Gauss .
 
-
+   op _eqn_ : Int NegInt -> Bool .
    op _negIn_ : Int NeGauss -> Bool .
    op _adj_in_ : Int Int NeGauss -> Bool .
 
    eq - I + I = 0 .
+   ceq I eqn Z = true if abs(I) = abs(Z) /\ I + Z = 0 . 
     
    ---ADJACENT OPERATION
    eq I adj K in (G ; I ; K ; G') = true .
@@ -98,18 +99,60 @@ fmod KNOT-DEFINITION is
 endfm
 
 mod R-MOVES is
-
+   
    protecting KNOT-DEFINITION .
    protecting BOOL .
 
+   op canApplyMove1 : Gauss -> Bool .
+   op canApplyMove2 : Gauss -> Bool .
+   op canApplyMove3 : Gauss -> Bool .
+
+   op applyMove3I : Gauss -> Int .
+   op applyMove3J : Gauss -> Int .
+   op applyMove3K : Gauss -> Int .
+   op applyMove3Z : Gauss -> Int .
+
+   op sign : Int -> Int .
+
    vars G G' G'' : Gauss .
    var NeG : NeGauss .
-   vars I K J Z : Int .
+   vars I K K' J J' Z Z' : Int .
 
-   crl [move1] : (G ; I ; K ; G') => (G ; G') if I adj K in (G ; I ; K ; G') = true /\ I + K = 0 .
-   crl [move1] : (I ; G ; G' ; K) => (G ; G') if I adj K in (I ; G ; G' ; K) = true /\ I + K = 0 /\ positionOf K in (I ; G ; G' ; K) = length(I ; G ; G' ; K).
-   crl [move2] : (G ; I ; K ; G' ; J ; Z ; G'') => (G ; G') if I adj K in (G ; I ; K ; G' ; J ; Z ; G'') = true /\ J adj Z in (G ; I ; K ; G' ; J ; Z ; G'') = true /\ I + J = 0 /\ K + Z = 0 .
-   crl [move3] : (G ; I ; J ; G' ; K ; Z ; G'') => (G ; J ; I ; G' ; Z ; K ; G'') if I adj J in (G ; I ; J ; G' ; K ; Z ; G'') = true /\ K adj Z in (G ; I ; J ; G' ; K ; Z ; G'') = true /\ J + K = 0 .
+   ceq sign(I) = 1 if I > 0 .
+   ceq sign(I) = -1 if I < 0 .
+
+   
+   ceq canApplyMove1( I ; K ) = true if abs(I) = abs(K) /\ I + K = 0 .
+   ---ceq canApplyMove1(I ; G ; G' ; K) = true if I adj K in (I ; G ; G' ; K) = true /\ abs(I) = abs(K) /\ I + K = 0 /\ positionOf K in (I ; G ; G' ; K) = length(I ; G ; G' ; K) /\ positionOf I in (I ; G ; G' ; K) = 0 .
+   eq canApplyMove1(~) = false .
+   eq canApplyMove1(G) = false [owise] .
+
+   ceq canApplyMove2(I ; K ; G' ; J ; Z ) = true if abs(I) = abs(J) /\ I + J = 0 /\ abs(K) = abs(Z) /\ K + Z = 0 .
+   eq canApplyMove2(~) = false .
+   eq canApplyMove2(I ; K ; G' ; J ; Z ) = false [owise] .
+
+   ceq canApplyMove3( I ; J ; K ; Z ) = true if sign(I) = sign(Z) /\ abs(J) = abs(K) /\ J + K = 0 . 
+   ceq canApplyMove3( I ; J ; K ; Z ) = true if sign(I) = sign(Z) /\ abs(J) = abs(K) /\ J + K = 0 . 
+   eq canApplyMove3(~) = false .
+   eq canApplyMove3(I ; J ; G' ; K ; Z ) = false [owise] .
+
+   ceq applyMove3I(G ; I ; J ; G' ; K ; Z ; G'') = I if canApplyMove3(G ; I ; J ; G' ; K ; Z ; G'') .
+   ceq applyMove3J(G ; I ; J ; G' ; K ; Z ; G'') = J if canApplyMove3(G ; I ; J ; G' ; K ; Z ; G'') .
+   ceq applyMove3K(G ; I ; J ; G' ; K ; Z ; G'') = K if canApplyMove3(G ; I ; J ; G' ; K ; Z ; G'') .
+   ceq applyMove3Z(G ; I ; J ; G' ; K ; Z ; G'') = Z if canApplyMove3(G ; I ; J ; G' ; K ; Z ; G'') .
+
+   
+
+
+   ---fare in modo che la move3 la applica solo se non può applicare la move1 o move2
+
+   crl [move1] : (G ; I ; K ) => (G ) if canApplyMove1(G ; I ; K ) = true .
+   crl [move1] : (I ; K ; G) => (G) if canApplyMove1(I ; K ; G) = true .
+   crl [move1] : (I ; G ; K) => (G ) if canApplyMove1(I ; G ; K) = true .
+   crl [move2] : (I ; K ; G' ; J ; Z) => (G') if canApplyMove2(I ; K ; G' ; J ; Z) = true .
+   crl [move3] : ( I ; J ; G' ; K ; Z) => ( J ; Z ; G' ; I ; K ) if canApplyMove3( I ; J ; G' ; K ; Z ) = true /\ canApplyMove1( I ; J ; G' ; K ; Z) = false /\ canApplyMove2(I ; J ; G' ; K ; Z) = false .
+   crl [unknot] : G => ~ if canApplyMove1(G) = false /\ canApplyMove2(G) = false /\ canApplyMove3(G) = false /\ length(G) = 0 .
+   crl [minknot] : G => G if canApplyMove1(G) = false /\ canApplyMove2(G) = false /\ canApplyMove3(G) = false /\ length(G) =/= 0 .
 
 endm
 
