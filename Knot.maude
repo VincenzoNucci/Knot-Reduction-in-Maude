@@ -26,6 +26,8 @@ fmod GAUSS-CODE is
    --- op add_in_to_ : Int Int Gauss -> NeGauss .
    op add_in_to_ : Gauss Int Gauss -> NeGauss .
    op move_to_in_ : Int Int NeGauss -> NeGauss .
+   op next : Gauss -> Gauss .
+   op maxKnot : Gauss -> Int .
 
    vars G G' G'' : Gauss .
    var NeG : NeGauss .
@@ -64,6 +66,15 @@ fmod GAUSS-CODE is
 
    --- MOVE OPERATION
    eq move I to K in NeG = ( add I in K to ( remove I from NeG ) ) .
+
+   --- MAXKNOT OPERATION
+   --- prendere l'intero successivo alla coppia di crossing più alta e restituire il successivo
+   eq maxKnot(~) = 0 .
+   eq maxKnot(I) = I .
+   ceq maxKnot(G ; I) = if I > max(G) then I else max(G) fi .
+
+   --- NEXT OPERATION
+   eq next(G) = ((maxKnot(G) + 1) ; - (maxKnot(G) + 1)) .
 
 endfm
 
@@ -153,8 +164,15 @@ mod R-MOVES is
    crl [move1] : (G ; I ; K ) => (G ) if canApplyMove1(G ; I ; K ) = true .
    crl [move1] : (I ; K ; G) => (G) if canApplyMove1(I ; K ; G) = true .
    crl [move1] : (I ; G ; K) => (G ) if canApplyMove1(I ; G ; K) = true .
-   crl [move1Inv] : (G ; I ; G') => (add (I + 1 ; - I - 1) in X to G) if positionOf I + 1 in G = -1 /\ positionOf - I - 1 in G = -1 .
-   crl [move2Inv] : (G ; K ; G' ; Z ; G'') => (add (K + 1 ; Z + 1) in X' to (add (- K ; - Z) in X to G)) if abs(X' - X) >= 2 /\ positionOf K in G = -1 /\ positionOf Z in G = -1 /\ positionOf - K in G = -1 /\ positionOf - Z in G = -1 /\ K =/= Z /\ sign(K) = sign(Z) .
+
+---creare la operazione next che dato un gauss code G restituisce la coppia di interi I -I successivi alla coppia piu grande presente in G
+   --- (G ; G') => (G ; new(G ; G'); G')
+
+   --- crl [move1Inv] : (G ; G') => (add (I ; - I) in X to G) if positionOf I in G = -1 /\ positionOf - I in G = -1 /\ .
+   rl [move1Inv] : (G ; G') => (G ; next(G ; G') ; G') .
+   
+   --- crl [move2Inv] : (G ; K ; G' ; Z ; G'') => (add (K + 1 ; Z + 1) in X' to (add (- K ; - Z) in X to G)) if abs(X' - X) >= 2 /\ positionOf K in G = -1 /\ positionOf Z in G = -1 /\ positionOf - K in G = -1 /\ positionOf - Z in G = -1 /\ K =/= Z /\ sign(K) = sign(Z) .
+   rl [move2Inv] : (G ; G') => (G ; next(G ; G') ; next(next(G ; G')) ; G') .
    crl [move2] : (I ; K ; G' ; J ; Z) => (G') if canApplyMove2(I ; K ; G' ; J ; Z) = true .
    crl [move3] : (G ; I ; K ; G' ; - I ; - J ; - K ; J ; G'') => (G ; K ; J ; G' ; - I ; - J ; I ; - K ; G'' ) if canApplyMove3(G ; I ; K ; G' ; - I ; - J ; - K ; J ; G'') = true .
    crl [move3] : (G ; I ; K ; G' ; - J ; - I ; - K ; J ; G'') => (G ; K ; J ; G' ; - J ; - I ; I ; - K ; G'' ) if canApplyMove3(G ; I ; K ; G' ; - I ; - J ; - K ; J ; G'') = true .
